@@ -1,5 +1,7 @@
 #include "unp.h"
 
+#define oops(s) {perror(s); exit(1);}
+
 void str_echo(int sockfd)
 {
 	int n;
@@ -7,16 +9,14 @@ void str_echo(int sockfd)
 	long arg1, arg2;	
 
 	for( ; ; ){
-		if((n = Read(sockfd, line, MAXLINE)) == 0)
-			return;
-		
+		if((n = read(sockfd, line, MAXLINE)) == 0)
+			return;		
 		if(sscanf(line, "%ld%ld", &arg1, &arg2) == 2)
 			snprintf(line, sizeof(line), "%ld\n", arg1 + arg2);
 		else
 			snprintf(line, sizeof(line), "input error\n");
-		
 	
-		n = sizeof(line);
+		n = strlen(line);
 		Writen(sockfd, line, n);
 	}
 }
@@ -39,14 +39,17 @@ int main()
 	socklen_t clilen;
 	pid_t child_pid;
 
-	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
+//	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
+	if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == EOF)
+		oops("socket error");
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_port   = htons(SERV_PORT);
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	Bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
+	if(bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) == EOF)
+		oops("bind error");
 
 	Listen(listenfd, LISTENQ);
 
@@ -60,7 +63,10 @@ int main()
 			else
 				err_sys("accept error");
 		}
-		if((child_pid = Fork()) == 0){
+		if((child_pid = fork()) < 0){
+			oops("fork error");
+		}
+		else if(child_pid == 0){
 			Close(listenfd);
 			str_echo(connfd);
 			exit(0);
