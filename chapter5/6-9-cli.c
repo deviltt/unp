@@ -52,11 +52,11 @@ void str_cli(FILE *fp, int sockfd)
 				if(stdineof == 1)
 					return;
 				else
-					err_quit("error");
+					err_quit("error serv close");	//when the server is closed, this will print;
 			}
 			Write(fileno(stdout), buf, n);
 		}
-		if(FD_ISSET(fileno(fp), &reset)){
+		if(FD_ISSET(fileno(fp), &reset)){		//when the server is closed, this will not act, stdineof = 0;
 			if((n = Read(fileno(fp), buf, MAXLINE)) == 0){
 				stdineof = 1;
 				Shutdown(sockfd, SHUT_WR);
