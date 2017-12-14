@@ -1,7 +1,7 @@
 #include "unp.h"
 
 #define oops(s) {perror(s); exit(1);}
-
+/*
 void str_cli(FILE *fd, int sockfd)
 {
 	char sendbuf[MAXLINE], recbuf[MAXLINE];
@@ -26,6 +26,44 @@ void str_cli(FILE *fd, int sockfd)
 			if(Fgets(sendbuf, MAXLINE, stdin) == NULL)
 				return;
 			Writen(sockfd, sendbuf, strlen(sendbuf));
+		}
+	}
+}
+*/
+
+void str_cli(FILE *fp, int sockfd)
+{
+	int maxfdp, stdineof;
+	char buf[MAXLINE];
+	fd_set reset;
+	int n;
+
+	stdineof = 0;
+	FD_ZERO(&reset);
+	for( ; ; ){
+		if(stdineof == 0)
+			FD_SET(fileno(fp), &reset);
+		FD_SET(sockfd, &reset);
+		maxfdp = max(fileno(fp), sockfd) + 1;
+		Select(maxfdp, &reset, NULL, NULL, NULL);
+
+		if(FD_ISSET(sockfd, &reset)){
+			if((n = Read(sockfd, buf, MAXLINE)) == 0){
+				if(stdineof == 1)
+					return;
+				else
+					err_quit("error");
+			}
+			Write(fileno(stdout), buf, n);
+		}
+		if(FD_ISSET(fileno(fp), &reset)){
+			if((n = Read(fileno(fp), buf, MAXLINE)) == 0){
+				stdineof = 1;
+				Shutdown(sockfd, SHUT_WR);
+				FD_CLR(fileno(fp), &reset);
+				continue;
+			}
+			Write(sockfd, buf, n);
 		}
 	}
 }
