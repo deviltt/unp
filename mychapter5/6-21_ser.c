@@ -1,4 +1,5 @@
 #include "unp.h"
+#include <ctype.h>
 
 int main(int argc, char *argv[])
 {
@@ -64,8 +65,11 @@ int main(int argc, char *argv[])
 					FD_CLR(sockfd, &rset);
 					client[i] = -1;
 				}
-				else
+				else{
+					for(i = 0; i < n-1; i++)
+						buf[i] -= 32;
 					Writen(sockfd, buf, n);
+				}
 
 				if(--nready <= 0)
 					break;
