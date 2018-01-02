@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 				}
 				else{
 					for(i = 0; i < n-1; i++)
-						buf[i] -= 32;
+						buf[i] = toupper(buf[i]);
 					Writen(sockfd, buf, n);
 				}
 
