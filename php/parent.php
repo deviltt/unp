@@ -5,9 +5,20 @@
 
 		function __construct($name){
 			$this->name = $name;
-			echo "$this->name\n";
+			echo "employee's name :$this->name\n";
 		}
 	}
 
-	$employee = new Employee("tt");
+	class ceo extends Employee{
+		
+		private $Ceo;
+		
+		function __construct($Ceo){
+			parent::__construct($Ceo);
+			$this->Ceo = $Ceo;
+			echo "$this->Ceo\n";
+		}
+	}
+
+	$employee = new ceo("tt");
 ?>
