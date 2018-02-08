@@ -14,7 +14,8 @@
 		private $Ceo;
 		
 		function __construct($Ceo){
-			parent::__construct($Ceo);
+//			parent::__construct($Ceo);
+			Employee::__construct($Ceo);
 			$this->Ceo = $Ceo;
 			echo "$this->Ceo\n";
 		}
